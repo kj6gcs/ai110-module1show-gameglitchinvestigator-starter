@@ -8,15 +8,38 @@ Answer each question in 3 to 5 sentences. Be specific and honest about what actu
 - List at least two concrete bugs you noticed at the start  
   (for example: "the hints were backwards").
 
+The game looked as it should (I'd assume) with the developer debug info available (I'm guessing it wouldn't be visible for an end user). First thing I noticed was the side bar under normal difficulty stated I had 8 attempts allowed, but shen I checked the main windo, it stated I had 7 attempts remaining.
+
+During testing, I swapped between the different difficulties and noticed that "Easy" had you guess between 1 - 20, "Normal" had you guess between 1 - 100, and "Hard" had you guess between 1 - 50. I've noted game bugs discovered below, but the difficulties and their guess ranges aren't aligned either. "Easy" is correct with a range of 1 - 20, as the user's change of guessing the correct secret number becomes substantially easier when there are so few numbers. However, "Normal" should have the range of 1 - 50 (more difficult to guess correctly than 1 - 20), and "Hard" should have the range of 1 - 100, as it would be extremely difficult to guess the number with the allotted guesses of 5.
+
+Further along those same lines is the issue with the allotted number of guesses per difficulty. The original settings is "Easy" allows for 6 attempts, "Normal" allows for 8, and "Hard" allows for 5. "Hard" has the right number of guesses, but the number of guesses for "Easy" and "Normal" should be swapped.
+
 **Bug Reproduction Log**
 
 Document at least 3 bugs you found. Add rows as needed.
 
-| Input | Expected Behavior | Actual Behavior | Console Output / Error |
-|-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+| Input                | Expected Behavior | Actual Behavior                | Console Output / Error |
+| -------------------- | ----------------- | ------------------------------ | ---------------------- |
+| 777                  | Error message.    | Hint told me to guess higher.  | None.                  |
+| -------------------- | ----------------- | ------------------------------ | ---------------------- |
+| Click "New Game"     | Game reset.       | "Secret" changed, but game     | None.                  |
+|                      |                   | continued to tell me to start  |                        |
+|                      |                   | a new game.                    |                        |
+| -------------------- | ----------------- | ------------------------------ | ---------------------- |
+| Change Difficulty    | Difficulty and    | Switching between              | None.                  |
+|                      | secret should     | difficulties changed the       |                        |
+|                      | should change.    | guessing range _and_ secret;   |                        |
+|                      |                   | however it did not change the  |                        |
+|                      |                   | secret.                        |                        |
+| -------------------- | ----------------- | ------------------------------ | ---------------------- |
+| Attempting Guesses   | User should get   | On hard difficulty, I made 3   | "Out of attempts! The  |
+|                      | full amount of    | guesses and received an "Out   | secret was 72. Score:  |
+|                      | guesses.          | of attempts!" error message.   | -20" (on Hard).        |
+|                      |                   |                                | problem persists on    |
+|                      |                   |                                | other difficulties as  |
+|                      |                   |                                | well.                  |
+| -------------------- | ----------------- | ------------------------------ | ---------------------- |
+| (string error) |
 
 ---
 
