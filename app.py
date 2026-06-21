@@ -10,7 +10,7 @@ def get_range_for_difficulty(difficulty: str):
         return 1, 50
     return 1, 100
 
-
+    # FIXME: This bit of logic does not check to ensure the guess is within the valid range.
 def parse_guess(raw: str):
     if raw is None:
         return False, None, "Enter a guess."
@@ -34,6 +34,7 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        # FIXME: Hint logic here is inverted.  If too high, should state "go lower" and vice versa.
         if guess > secret:
             return "Too High", "📈 Go HIGHER!"
         else:
@@ -88,10 +89,16 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
-
+# FIXME: The secret is only generated once — the very first
+# time the app loads. After that, "secret" is already in st.session_state,
+# so this block is skipped on every rerun including difficulty changes. 
+# The range display updates correctly (because that's computed fresh each run),
+# but the secret stays the same number it was from the start.
 if "secret" not in st.session_state:
     st.session_state.secret = random.randint(low, high)
-
+# FIXME: The attempts counter starts at 1 instead of 0.  In programming, 0=1, 1=2, etc.
+# So with the logic in it's current state, on your first attempt, you're automatically
+# down one attempt.
 if "attempts" not in st.session_state:
     st.session_state.attempts = 1
 
@@ -130,13 +137,14 @@ with col2:
     new_game = st.button("New Game 🔁")
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
-
+# FIXME: Does not reset st.session_state.status back to playing.
 if new_game:
     st.session_state.attempts = 0
     st.session_state.secret = random.randint(1, 100)
     st.success("New game started.")
     st.rerun()
-
+# FIXME: On "new game," game still sees eith the win or loss status and jumps 
+# straight to game over, calls st.stop().  Only the secret is changed at that point.
 if st.session_state.status != "playing":
     if st.session_state.status == "won":
         st.success("You already won. Start a new game to play again.")
