@@ -160,3 +160,5 @@ tests/test_game_logic.py::test_parse_guess_rejects_empty_input PASSED           
 ## 🚀 Stretch Features
 
 - [ ] [If you choose to complete Challenge 4, describe the Enhanced UI changes here — a screenshot is optional]
+
+#### (C) 2026, Robby Wideman

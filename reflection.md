@@ -103,3 +103,5 @@ Document at least 3 bugs you found. Add rows as needed.
 - In one or two sentences, describe how this project changed the way you think about AI generated code.
 
   **_I've only really used AI to assist with web development (mostly a lot of "why isn't this working correctly" debugging prompts, ahah). I'd used it a bit to assist in a Python course about a year and a half back, but most of that was learning why certain syntax did the things it did. Claude did an absolutely AMAZING job at helping me out and refreshing my memory on Python (although admittedly I still have SO MUCH to learn). I look forward to utilizing AI moving forward with some coding projects I want to complete._**
+
+  #### (C) 2026, Robby Wideman
