@@ -1,29 +1,22 @@
 import random
 
-# FIX: All game logic refactored out of app.py into this module using Claude Code.
-# app.py now only handles Streamlit UI; all pure logic lives here.
-
 
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
-    # FIX: Normal and Hard ranges were swapped. Identified by user during playtesting;
-    # Claude located the bug in get_range_for_difficulty() and corrected the values.
     if difficulty == "Easy":
         return 1, 20
     if difficulty == "Normal":
-        return 1, 50
+        return 1, 50   # Fixed: was 1-100 (swapped with Hard)
     if difficulty == "Hard":
-        return 1, 100
+        return 1, 100  # Fixed: was 1-50 (swapped with Normal)
     return 1, 100
 
 
 def get_attempt_limit(difficulty: str):
     """Return the number of allowed attempts for a given difficulty."""
-    # FIX: Easy and Normal attempt limits were swapped. Identified by user during playtesting;
-    # Claude refactored attempt_limit_map from app.py into this function and corrected the values.
     limits = {
-        "Easy": 8,
-        "Normal": 6,
+        "Easy": 8,    # Fixed: was 6 (swapped with Normal)
+        "Normal": 6,  # Fixed: was 8 (swapped with Easy)
         "Hard": 5,
     }
     return limits.get(difficulty, 6)
@@ -35,9 +28,6 @@ def parse_guess(raw: str, low: int, high: int):
 
     Returns: (ok: bool, guess_int: int | None, error_message: str | None)
     """
-    # FIX: Original parse_guess accepted any number regardless of range (e.g. 777 on Normal).
-    # User identified the issue via the 777 test case; Claude added low/high parameters
-    # and the range validation check below.
     if raw is None or raw == "":
         return False, None, "Enter a guess."
 
@@ -49,6 +39,7 @@ def parse_guess(raw: str, low: int, high: int):
     except Exception:
         return False, None, "That is not a number."
 
+    # Fixed: validate guess is within the valid range
     if value < low or value > high:
         return False, None, f"Guess must be between {low} and {high}."
 
@@ -61,16 +52,11 @@ def check_guess(guess: int, secret: int):
 
     outcome: "Win", "Too High", or "Too Low"
     """
-    # FIX: Hint messages were logically inverted — "Too High" said "Go HIGHER!" and vice versa.
-    # User identified the inversion via the 777 test case; Claude corrected the hint strings.
-    # FIX: Original code also cast secret to a string on even-numbered attempts, causing
-    # lexicographic comparison (e.g. "9" > "10" is True). User documented the bug;
-    # Claude removed the string conversion entirely so this function always receives integers.
     if guess == secret:
         return "Win", "🎉 Correct!"
     if guess > secret:
-        return "Too High", "📉 Go LOWER!"
-    return "Too Low", "📈 Go HIGHER!"
+        return "Too High", "📉 Go LOWER!"   # Fixed: was "Go HIGHER!"
+    return "Too Low", "📈 Go HIGHER!"        # Fixed: was "Go LOWER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
@@ -94,7 +80,5 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
 def generate_secret(difficulty: str) -> int:
     """Generate a new secret number for the given difficulty."""
-    # FIX: New Game originally used a hardcoded randint(1, 100) regardless of difficulty.
-    # Claude introduced this helper so secret generation always respects the correct range.
     low, high = get_range_for_difficulty(difficulty)
     return random.randint(low, high)

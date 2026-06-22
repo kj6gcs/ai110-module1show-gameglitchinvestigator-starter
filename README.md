@@ -29,8 +29,35 @@ It wrote the code, ran away, and now the game is unplayable.
 
   **_The game is designed to be a guessing game where the app picks a random number within a given range based upon difficulty (easy, normal, and hard). The user/player makes guesses as to what that random number may be, with a limited number of attempts per round/game based on the difficulty setting, as well. The game will give your hints as to whether you go higher or lower (or if you correctly guess the secret number) as you go through your attempts_**
 
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [x] Detail which bugs you found.
+
+  ### Bugs Found
+
+1. **Inverted hints:** Guessing too high displayed "Go HIGHER!" and guessing too low displayed "Go LOWER!" — the opposite of correct guidance.
+2. **String comparison on even attempts:** On every even-numbered attempt, the secret number was cast to a string, causing lexicographic comparison (e.g. `"9" > "10"` evaluates as `True`), producing incorrect hints.
+3. **Difficulty ranges swapped:** Normal used a range of 1–100 and Hard used 1–50, making Hard statistically easier than Normal.
+4. **Attempt limits swapped:** Easy allowed only 6 guesses and Normal allowed 8, making Normal easier than Easy.
+5. **No range validation on guesses:** Out-of-range inputs (e.g. 777) were accepted and processed as valid guesses without any error.
+6. **Attempts counter started at 1:** The attempts counter was initialized to `1` instead of `0`, consuming one attempt before the player ever guessed.
+7. **New Game did not reset game status:** After a win or loss, clicking New Game changed the secret but never reset `status` back to `"playing"`, leaving the game-over screen locked in place.
+8. **New Game used hardcoded range:** New Game generated the secret with a hardcoded range of 1–100 regardless of the selected difficulty.
+9. **Difficulty change did not reset the secret:** Switching difficulty updated the displayed range but left the old secret active, which could fall outside the new range entirely.
+10. **Debug history displayed one guess behind:** The Developer Debug Info expander rendered before the submit logic ran, so the history array always reflected the previous guess rather than the current one.
+
+- [x] Explain what fixes you applied.
+
+### Fixes Applied
+
+1. Swapped the hint messages in `check_guess()` so "Too High" returns "Go LOWER!" and "Too Low" returns "Go HIGHER!"
+2. Removed the even-attempt string conversion entirely; the secret is now always passed to `check_guess()` as an integer.
+3. Corrected `get_range_for_difficulty()` to Normal → 1–50 and Hard → 1–100.
+4. Corrected `get_attempt_limit()` to Easy → 8 and Normal → 6; Hard → 5 unchanged.
+5. Added `low` and `high` parameters to `parse_guess()` with a range check that returns an error message for out-of-range inputs.
+6. Changed the attempts session state initialization from `1` to `0`.
+7. Added `st.session_state.status = "playing"` to the New Game reset block.
+8. Replaced the hardcoded `random.randint(1, 100)` in the New Game handler with `generate_secret(difficulty)`.
+9. Added difficulty tracking in session state; any change in difficulty now triggers a full game reset with a new secret generated within the correct range.
+10. Moved the Developer Debug Info expander to the bottom of the script so it renders after all session state updates have been applied.
 
 ## 📸 Demo Walkthrough
 
@@ -44,7 +71,7 @@ Describe your fixed game in numbered steps so a reader can follow along without 
 
 2. _Claude made the following changes per my request, summarized by Claude:_
 
-#### Refactor & Bug Fix Summary
+### Refactor & Bug Fix Summary
 
 #### logic_utils.py — Pure Logic
 
@@ -57,7 +84,7 @@ Describe your fixed game in numbered steps so a reader can follow along without 
 | `update_score()`              | Moved from app.py; no logic changes                                                                                                                 |
 | `generate_secret()`           | New helper; centralizes secret generation using the correct difficulty range                                                                        |
 
-### app.py — UI Only
+#### app.py — UI Only
 
 | Location                      | Change                                                                                                                     |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
@@ -94,9 +121,40 @@ Describe your fixed game in numbered steps so a reader can follow along without 
 ## 🧪 Test Results
 
 ```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+kj6gc@DESKTOP-4GFKEFH MINGW64 /d/0000 Codepath/AI110 - Foundations of AI Engineering/ai110-module1show-gameglitchinvestigator-starter (main)
+$ pytest tests/test_game_logic.py -v
+========================================================================================== test session starts ==========================================================================================
+platform win32 -- Python 3.14.2, pytest-9.0.3, pluggy-1.6.0 -- d:\0000 Codepath\AI110 - Foundations of AI Engineering\ai110-module1show-gameglitchinvestigator-starter\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\0000 Codepath\AI110 - Foundations of AI Engineering\ai110-module1show-gameglitchinvestigator-starter
+plugins: anyio-4.13.0
+collected 22 items
+
+tests/test_game_logic.py::test_winning_guess PASSED                                                                                                                                                [  4%]
+tests/test_game_logic.py::test_guess_too_high PASSED                                                                                                                                               [  9%]
+tests/test_game_logic.py::test_guess_too_low PASSED                                                                                                                                                [ 13%]
+tests/test_game_logic.py::test_too_high_hint_directs_player_lower PASSED                                                                                                                           [ 18%]
+tests/test_game_logic.py::test_too_low_hint_directs_player_higher PASSED                                                                                                                           [ 22%]
+tests/test_game_logic.py::test_integer_comparison_not_lexicographic PASSED                                                                                                                         [ 27%]
+tests/test_game_logic.py::test_two_digit_boundary_comparison PASSED                                                                                                                                [ 31%]
+tests/test_game_logic.py::test_easy_range PASSED                                                                                                                                                   [ 36%]
+tests/test_game_logic.py::test_normal_range_is_not_harder_than_hard PASSED                                                                                                                         [ 40%]
+tests/test_game_logic.py::test_normal_range PASSED                                                                                                                                                 [ 45%]
+tests/test_game_logic.py::test_hard_range PASSED                                                                                                                                                   [ 50%]
+tests/test_game_logic.py::test_easy_allows_more_attempts_than_normal PASSED                                                                                                                        [ 54%]
+tests/test_game_logic.py::test_easy_attempt_limit PASSED                                                                                                                                           [ 59%]
+tests/test_game_logic.py::test_normal_attempt_limit PASSED                                                                                                                                         [ 63%]
+tests/test_game_logic.py::test_hard_attempt_limit PASSED                                                                                                                                           [ 68%]
+tests/test_game_logic.py::test_parse_guess_rejects_above_range PASSED                                                                                                                              [ 72%]
+tests/test_game_logic.py::test_parse_guess_rejects_below_range PASSED                                                                                                                              [ 77%]
+tests/test_game_logic.py::test_parse_guess_accepts_value_at_lower_bound PASSED                                                                                                                     [ 81%]
+tests/test_game_logic.py::test_parse_guess_accepts_value_at_upper_bound PASSED                                                                                                                     [ 86%]
+tests/test_game_logic.py::test_parse_guess_accepts_value_in_range PASSED                                                                                                                           [ 90%]
+tests/test_game_logic.py::test_parse_guess_rejects_non_numeric_input PASSED                                                                                                                        [ 95%]
+tests/test_game_logic.py::test_parse_guess_rejects_empty_input PASSED                                                                                                                              [100%]
+
+========================================================================================== 22 passed in 0.04s ===========================================================================================
+(.venv)
 ```
 
 ## 🚀 Stretch Features
